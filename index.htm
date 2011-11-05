@@ -1,5 +1,5 @@
 <!doctype html>
-<!--<html lang="en" manifest="manifest.appcache">-->
+<html lang="en" manifest="manifest.appcache">
 <html lang="en">
 
 <head>
@@ -27,17 +27,36 @@
 		top:0;
 	}
 	
-	#container .square {
-		-webkit-backface-visibility:hidden;
-		-moz-backface-visibility:hidden;
+	#container .square-container {
 		float:left;
-		position:relative;
-		z-index:100;
 		-webkit-transition: -webkit-transform 0.8s ease-out;
 		-moz-transition: -moz-transform 0.8s ease-in-out;
-		-webkit-transform-style:preserve-3d;
 	}
 	#container .flipped {
+		/*
+		-webkit-animation: outAndBack;
+		-webkit-animation-duration: 0.8s;
+		-webkit-animation-timing-function: ease-out;
+		*/
+	}
+	@-webkit-keyframes outAndBack {
+		0% { -webkit-transform:translateZ(0px); }
+		50% { -webkit-transform:translateZ(-200px); }
+		100% { -webkit-transform:translateZ(0px); }
+	}
+	
+	#container .square {
+		width:100%;
+		height:100%;
+		z-index:100;
+		-webkit-backface-visibility:hidden;
+		-moz-backface-visibility:hidden;
+		-webkit-transition: -webkit-transform 0.8s ease-out;
+		-moz-transition: -moz-transform 0.8s ease-out;
+		-webkit-transform-style:preserve-3d;
+	}
+	
+	#container .flipped .square {
 		-webkit-transform:rotateY(180deg);
 		-moz-transform:rotateY(180deg);
 	}
@@ -89,9 +108,8 @@ var Game = function() {
 	var _createSquares = function(splitFactor) {
 		
 		_currentColors = _colors.slice();
-		console.log(_currentColors.length);
 		var flipColor = _currentColors.splice(Math.floor(Math.random()*_currentColors.length), 1);
-		console.log(_currentColors.length);
+		
 		
 		for (var row=0; row<splitFactor; row++) {
 			for (var col=0; col<splitFactor; col++) {
@@ -109,19 +127,26 @@ var Game = function() {
 		this.elem = document.createElement('div');
 		var $elem = $(this.elem);
 		
+		$elem.addClass('square-container');
 		$elem.css({
-			'background-color': this.color,
 			'width': (100/_splitFactor) + '%',
 			'height': (100/_splitFactor) + '%'
 		});
-		$elem.addClass('square');
 		$elem.one('mousedown touchstart', function() {
 			$(this).addClass("flipped");
 		});
 		
+		
+		var $sq = $("<div></div>");
+		$sq.addClass("square");
+		$sq.css({
+			'background-color': this.color
+		});
+		$sq.appendTo($elem);
+		
 		var $inner = $("<div></div>");
 		$inner.css("background-color" , "#" + flipColor);
-		$inner.appendTo($elem);
+		$inner.appendTo($sq);
 	};
 	
 	
@@ -181,6 +206,24 @@ $(".square").each(function() {
 	new FastClick(this);
 });
 
+
+
+// Check if a new cache is available on page load.
+window.addEventListener('load', function(e) {
+	window.applicationCache.addEventListener('updateready', function(e) {
+		if (window.applicationCache.status == window.applicationCache.UPDATEREADY) {
+			// Browser downloaded a new app cache.
+			// Swap it in and reload the page to get the new hotness.
+			window.applicationCache.swapCache();
+			if (confirm('A new version of this app is available. Load it?')) {
+				window.location.reload();
+			}
+		} else {
+			// Manifest didn't changed. Nothing new to server.
+		}
+	}, false);
+
+}, false);
 
 </script>
 </html>
