@@ -1,8 +1,9 @@
 CACHE MANIFEST
-# v1 - 2011-11-04 8
+# v0.5
 
 CACHE:
-jquery-1.6.4.min.js
+jq.mobi.min.js
+Game.js
+styles.css
 
 NETWORK:
-index.htm
